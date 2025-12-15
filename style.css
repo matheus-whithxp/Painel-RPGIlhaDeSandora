@@ -1,54 +1,71 @@
 @font-face {
   font-family: "Heartless";
-  /* caminho ajustado: o .ttf está no root do repo, então uso URL sem pasta */
   src: url("Heartless.ttf") format("truetype");
 }
 
-/* base e resto inalterados — mantendo tudo que já estava certo */
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  background: #1b1b1b;
-  font-family: "Heartless", serif;
+  background: #111111;
+  font-family: "Heartless", Arial, sans-serif;
   color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
 .painel {
   width: 90%;
-  max-width: 1200px;
-  margin: 40px auto;
+  max-width: 900px;
+  padding: 24px;
 }
 
-.bloco { margin-bottom: 60px; }
+.bloco { margin-bottom: 40px; }
 
-.titulo { font-size: 42px; margin-bottom: 10px; }
+.titulo {
+  font-size: 34px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-.separador-titulo { height: 32px; vertical-align: middle; margin: 0 10px; }
+.separador-titulo { height: 30px; vertical-align: middle; }
 
-.linha { display: flex; align-items: center; gap: 20px; }
+.linha {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
 
+/* Container da barra */
 .barra-externa {
   position: relative;
   flex: 1;
-  height: 60px;
-  background: #111;
-  border: 3px solid #000;
+  height: 68px;
+  background: #0f1720;
+  border-radius: 12px;
   overflow: hidden;
+  border: 3px solid #000;
 }
 
+/* preenchimento real */
 .barra-interna {
   position: absolute;
-  top: 0;
   left: 0;
+  top: 0;
   height: 100%;
   width: 100%;
-  transition: width 0.3s ease, opacity 0.15s linear;
+  transition: width 0.28s ease, opacity 0.12s linear;
 }
 
-.barra-interna.vida { background: #9b1c1c; }
-.barra-interna.sanidade { background: #3c458b; }
+/* cores */
+.barra-interna.vida { background: #d33a3a; }
+.barra-interna.sanidade { background: #3843b0; }
 
+/* texto e inputs sobre a barra */
 .barra-texto {
   position: absolute;
   inset: 0;
@@ -56,50 +73,100 @@ body {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  font-size: 32px;
   z-index: 2;
-  transition: opacity 0.3s ease;
+  font-size: 34px;
+  font-weight: bold;
+  color: white;
+  pointer-events: none; /* evita conflito com input clicks; input itself will be interactive */
 }
 
+/* estiliza o input de max dentro da barra */
 .valor-max {
+  pointer-events: auto; /* input precisa ser clicável */
   width: 90px;
   background: transparent;
   border: none;
   color: white;
-  font-family: "Heartless";
-  font-size: 32px;
+  font-family: "Heartless", Arial, sans-serif;
+  font-size: 34px;
   text-align: center;
+  outline: none;
 }
 
+/* indicador sutil ao focar */
+.valor-max:focus {
+  outline: 1px dashed rgba(255,255,255,0.15);
+  border-radius: 6px;
+}
+
+/* separador imagem */
 .separador { height: 34px; }
+.separador-titulo { height: 32px; }
 
-.controles { display: flex; gap: 12px; }
+/* controles (botoes + / -) */
+.controles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-.controles button {
+.ctrl {
   background: none;
   border: none;
   color: white;
-  font-size: 48px;
+  font-size: 46px;
   cursor: pointer;
+  width: 56px;
+  height: 56px;
+  line-height: 56px;
+  text-align: center;
+  border-radius: 8px;
+  transition: transform .08s, background .12s;
 }
 
-/* piscar crítico */
+.ctrl:active { transform: scale(.96); }
+.ctrl:hover { background: rgba(255,255,255,0.03); }
+
+/* ===== CRÍTICO (piscar) ===== */
 @keyframes piscar {
-  0% { opacity: 1; }
-  50% { opacity: 0.15; }
-  100% { opacity: 1; }
+  0% { opacity: 1; filter: none; }
+  50% { opacity: 0.18; filter: none; }
+  100% { opacity: 1; filter: none; }
 }
 
-.critico { animation: piscar 0.8s linear infinite; }
-.zerado { background: #000 !important; }
-.texto-zerado { color: #000 !important; opacity: 0.35; }
-.separador-zerado { filter: brightness(0); opacity: 0.35; }
+/* aplique na barra-interna e no texto para efeito visível */
+.critico-barra {
+  animation: piscar 0.9s linear infinite;
+}
 
-/* mobile */
+.critico-texto {
+  animation: piscar 0.9s linear infinite;
+}
+
+/* ===== ZERADO ===== */
+/* quando zerado, barra fica preta */
+.zerado-barra {
+  background: #000 !important;
+  opacity: 1 !important;
+}
+
+/* quando zerado, texto e ícone escurecem */
+.texto-zerado {
+  color: #000 !important;
+  opacity: 0.35 !important;
+}
+
+/* icone separador escurecido */
+.separador-zerado {
+  filter: brightness(0);
+  opacity: 0.35;
+}
+
+/* mobile adjustments */
 @media (max-width: 768px) {
-  .barra-externa { height: 55px; }
-  .barra-texto { font-size: 26px; }
-  .valor-max { font-size: 26px; width: 72px; }
-  .titulo { font-size: 30px; }
-  .separador { height: 28px; }
+  .barra-externa { height: 56px; }
+  .barra-texto { font-size: 24px; }
+  .valor-max { font-size: 24px; width: 70px; }
+  .separador { height: 26px; }
+  .ctrl { font-size: 36px; width:48px; height:48px; line-height:48px; }
 }
