@@ -1,67 +1,209 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Painel RPG</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+<meta charset="UTF-8">
+<title>Painel do Jogador</title>
 
+<style>
+:root {
+  --vida-color: #c0392b;
+  --sanidade-color: #2980b9;
+  --bg-bar: #1e1e1e;
+}
+
+body {
+  background:#0f0f0f;
+  font-family: Arial, sans-serif;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.painel {
+  width:360px;
+  background:#141414;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 0 20px rgba(0,0,0,.6);
+}
+
+.barra-container {
+  margin-bottom:20px;
+}
+
+.barra-topo {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:6px;
+}
+
+.barra-topo span {
+  font-size:14px;
+}
+
+.barra {
+  position:relative;
+  height:26px;
+  background:var(--bg-bar);
+  border-radius:8px;
+  overflow:hidden;
+}
+
+.barra-preenchimento {
+  height:100%;
+  width:100%;
+  transition:width .3s ease;
+}
+
+.vida {
+  background:var(--vida-color);
+}
+
+.sanidade {
+  background:var(--sanidade-color);
+}
+
+/* TEXTO CENTRAL */
+.barra-texto {
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-weight:bold;
+  z-index:2;
+}
+
+/* ESTADO CRÍTICO */
+.critico {
+  animation: piscar 1s infinite;
+}
+
+/* ZERADO */
+.zerado .barra-preenchimento {
+  background:#000 !important;
+}
+
+.zerado .barra-texto {
+  color:#000;
+  opacity:.4;
+}
+
+@keyframes piscar {
+  0% { opacity:1; }
+  50% { opacity:.3; }
+  100% { opacity:1; }
+}
+
+.controles {
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.controles input {
+  width:60px;
+  padding:4px;
+}
+</style>
+</head>
+
+<body>
 <div class="painel">
 
   <!-- VIDA -->
-  <div class="bloco">
-    <div class="titulo">VIDA</div>
-
-    <div class="linha">
-      <div class="barra-externa">
-
-        <div class="barra-interna vida" id="vida-barra"></div>
-
-        <div class="barra-texto">
-          <span id="vida-atual">100</span>
-          <!-- caminho ajustado -->
-          <img src="separador.png" class="separador" alt="/">
-          <input id="vida-max-input" class="valor-max" type="number" min="1" value="100">
-        </div>
-
-      </div>
-
-      <div class="controles">
-        <button id="vida-menos">−</button>
-        <button id="vida-mais">+</button>
-      </div>
+  <div class="barra-container" id="vidaBox">
+    <div class="barra-topo">
+      <span>❤️ Vida</span>
+      <span>
+        <input type="number" id="vidaAtual" value="10" min="0">
+        /
+        <input type="number" id="vidaMax" value="10" min="1">
+      </span>
+    </div>
+    <div class="barra">
+      <div class="barra-preenchimento vida" id="vidaBarra"></div>
+      <div class="barra-texto" id="vidaTexto"></div>
     </div>
   </div>
 
   <!-- SANIDADE -->
-  <div class="bloco">
-    <div class="titulo">
-      PD <img src="separador.png" class="separador-titulo" alt="/"> SANIDADE
+  <div class="barra-container" id="sanidadeBox">
+    <div class="barra-topo">
+      <span>🧠 Sanidade</span>
+      <span>
+        <input type="number" id="sanAtual" value="10" min="0">
+        /
+        <input type="number" id="sanMax" value="10" min="1">
+      </span>
     </div>
-
-    <div class="linha">
-      <div class="barra-externa">
-
-        <div class="barra-interna sanidade" id="sanidade-barra"></div>
-
-        <div class="barra-texto">
-          <span id="sanidade-atual">100</span>
-          <img src="separador.png" class="separador" alt="/">
-          <input id="sanidade-max-input" class="valor-max" type="number" min="1" value="100">
-        </div>
-
-      </div>
-
-      <div class="controles">
-        <button id="sanidade-menos">−</button>
-        <button id="sanidade-mais">+</button>
-      </div>
+    <div class="barra">
+      <div class="barra-preenchimento sanidade" id="sanBarra"></div>
+      <div class="barra-texto" id="sanTexto"></div>
     </div>
   </div>
 
 </div>
 
-<script src="script.js"></script>
+<script>
+function atualizarBarra(atual, max, barra, texto, box) {
+  atual = Math.max(0, atual);
+  max = Math.max(1, max);
+
+  const porcentagem = (atual / max) * 100;
+  barra.style.width = porcentagem + "%";
+  texto.textContent = `${atual} / ${max}`;
+
+  box.classList.remove("critico", "zerado");
+
+  if (atual === 0) {
+    box.classList.add("zerado");
+  } 
+  else if (atual < 5) {
+    box.classList.add("critico");
+  }
+}
+
+/* VIDA */
+const vidaAtual = document.getElementById("vidaAtual");
+const vidaMax = document.getElementById("vidaMax");
+const vidaBarra = document.getElementById("vidaBarra");
+const vidaTexto = document.getElementById("vidaTexto");
+const vidaBox = document.getElementById("vidaBox");
+
+/* SANIDADE */
+const sanAtual = document.getElementById("sanAtual");
+const sanMax = document.getElementById("sanMax");
+const sanBarra = document.getElementById("sanBarra");
+const sanTexto = document.getElementById("sanTexto");
+const sanBox = document.getElementById("sanidadeBox");
+
+function atualizarTudo() {
+  atualizarBarra(
+    Number(vidaAtual.value),
+    Number(vidaMax.value),
+    vidaBarra,
+    vidaTexto,
+    vidaBox
+  );
+
+  atualizarBarra(
+    Number(sanAtual.value),
+    Number(sanMax.value),
+    sanBarra,
+    sanTexto,
+    sanBox
+  );
+}
+
+document.querySelectorAll("input").forEach(input => {
+  input.addEventListener("input", atualizarTudo);
+});
+
+atualizarTudo();
+</script>
 </body>
 </html>
