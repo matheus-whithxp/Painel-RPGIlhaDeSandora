@@ -1,128 +1,127 @@
-let vidaAtual = 100;
-let sanidadeAtual = 100;
+document.addEventListener('DOMContentLoaded', () => {
+    // --- 1. VARIÁVEIS DE ESTADO ---
+    const stats = {
+        life: {
+            current: 0,
+            max: 0,
+            bar: document.querySelector('.life-bar .stat-bar'),
+            currentEl: document.getElementById('current-life'),
+            maxEl: document.getElementById('max-life')
+        },
+        sanity: {
+            current: 0,
+            max: 0,
+            bar: document.querySelector('.sanity-bar .stat-bar'),
+            currentEl: document.getElementById('current-sanity'),
+            maxEl: document.getElementById('max-sanity')
+        }
+    };
 
-const vidaBar = document.getElementById("vida-barra");
-const sanidadeBar = document.getElementById("sanidade-barra");
+    const storageKey = 'rpgPanelState';
 
-const vidaAtualSpan = document.getElementById("vida-atual");
-const sanidadeAtualSpan = document.getElementById("sanidade-atual");
+    // --- 2. FUNÇÕES DE PERSISTÊNCIA (localStorage) ---
 
-const vidaMaxInput = document.getElementById("vida-max-input");
-const sanidadeMaxInput = document.getElementById("sanidade-max-input");
+    function loadState() {
+        const savedState = localStorage.getItem(storageKey);
+        if (savedState) {
+            const data = JSON.parse(savedState);
+            
+            stats.life.current = parseInt(data.life.current) || 0;
+            stats.life.max = parseInt(data.life.max) || 0;
+            stats.sanity.current = parseInt(data.sanity.current) || 0;
+            stats.sanity.max = parseInt(data.sanity.max) || 0;
 
-const vidaMaisBtn = document.getElementById("vida-mais");
-const vidaMenosBtn = document.getElementById("vida-menos");
-const sanidadeMaisBtn = document.getElementById("sanidade-mais");
-const sanidadeMenosBtn = document.getElementById("sanidade-menos");
-
-function toIntSafe(v, fallback = 0) {
-  const n = parseInt(v);
-  return isNaN(n) ? fallback : n;
-}
-
-function atualizarBarraVisual(atual, max, barraEl, spanEl) {
-  const safeMax = Math.max(1, toIntSafe(max, 1));
-  const porcent = Math.max(0, Math.min(100, (atual / safeMax) * 100));
-
-  barraEl.style.width = porcent + "%";
-  spanEl.innerText = atual;
-
-  const textoEl = barraEl.parentElement.querySelector(".barra-texto");
-  const separadorEl = textoEl.querySelector(".separador");
-
-  if (atual === 0) {
-    barraEl.classList.remove("critico");
-    barraEl.classList.add("zerado");
-    textoEl.classList.add("texto-zerado");
-    separadorEl.classList.add("separador-zerado");
-  } else {
-    barraEl.classList.remove("zerado");
-    textoEl.classList.remove("texto-zerado");
-    separadorEl.classList.remove("separador-zerado");
-
-    if (atual < 5) {
-      barraEl.classList.add("critico");
-      textoEl.classList.add("critico");
-    } else {
-      barraEl.classList.remove("critico");
-      textoEl.classList.remove("critico");
+            updatePanel('life');
+            updatePanel('sanity');
+        }
     }
-  }
-}
 
-function alterarValor(tipo, delta) {
-  if (tipo === "vida") {
-    const max = Math.max(1, toIntSafe(vidaMaxInput.value, 100));
-    vidaAtual = Math.max(0, Math.min(vidaAtual + delta, max));
-    atualizarBarraVisual(vidaAtual, max, vidaBar, vidaAtualSpan);
-  } else {
-    const max = Math.max(1, toIntSafe(sanidadeMaxInput.value, 100));
-    sanidadeAtual = Math.max(0, Math.min(sanidadeAtual + delta, max));
-    atualizarBarraVisual(sanidadeAtual, max, sanidadeBar, sanidadeAtualSpan);
-  }
-  salvarEstado();
-}
+    function saveState() {
+        const stateToSave = {
+            life: { current: stats.life.current, max: stats.life.max },
+            sanity: { current: stats.sanity.current, max: stats.sanity.max }
+        };
+        localStorage.setItem(storageKey, JSON.stringify(stateToSave));
+    }
 
-vidaMaisBtn.addEventListener("click", () => alterarValor("vida", 1));
-vidaMenosBtn.addEventListener("click", () => alterarValor("vida", -1));
-sanidadeMaisBtn.addEventListener("click", () => alterarValor("sanidade", 1));
-sanidadeMenosBtn.addEventListener("click", () => alterarValor("sanidade", -1));
 
-vidaMaxInput.addEventListener("input", () => {
-  let max = Math.max(1, toIntSafe(vidaMaxInput.value, 1));
-  vidaMaxInput.value = max;
-  if (vidaAtual > max) vidaAtual = max;
-  atualizarBarraVisual(vidaAtual, max, vidaBar, vidaAtualSpan);
-  salvarEstado();
+    // --- 3. FUNÇÕES DE ATUALIZAÇÃO E RENDERIZAÇÃO ---
+
+    function updateBarVisual(statId) {
+        const stat = stats[statId];
+        const bar = stat.bar;
+        const current = stat.current;
+        const max = stat.max;
+
+        bar.classList.remove('is-critical', 'is-zero');
+
+        if (current === 0) {
+            // Zerado
+            bar.classList.add('is-zero');
+            bar.style.backgroundSize = '0% 100%';
+        } else {
+            // Crítico (Atual <= 5 e > 0)
+            if (current <= 5) {
+                bar.classList.add('is-critical');
+            }
+            
+            // Preenchimento da barra
+            const percentage = max > 0 ? (current / max) * 100 : 0;
+            bar.style.backgroundSize = `${percentage}% 100%`;
+        }
+    }
+
+    function updatePanel(statId) {
+        const stat = stats[statId];
+        
+        // Garante limites (0 e Máximo)
+        stat.current = Math.min(stat.current, stat.max);
+        stat.current = Math.max(0, stat.current);
+
+        // Atualiza o DOM
+        stat.currentEl.textContent = stat.current;
+        stat.maxEl.value = stat.max;
+
+        // Aplica regras visuais
+        updateBarVisual(statId);
+        
+        // Salva o novo estado
+        saveState();
+    }
+
+
+    // --- 4. LISTENERS DE EVENTOS ---
+
+    // Listener para os botões de +/-
+    document.querySelectorAll('.control-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const statId = e.target.dataset.target;
+            const action = e.target.dataset.action;
+            const stat = stats[statId];
+            
+            if (action === 'increase') {
+                stat.current += 1;
+            } else if (action === 'decrease') {
+                stat.current -= 1;
+            }
+
+            updatePanel(statId);
+        });
+    });
+
+    // Listener para o input de valor Máximo
+    document.querySelectorAll('.max-value').forEach(input => {
+        input.addEventListener('input', (e) => {
+            const statId = e.target.id.split('-')[1];
+            const stat = stats[statId];
+            
+            const newMax = parseInt(e.target.value) || 0;
+            stat.max = Math.max(0, newMax);
+            
+            updatePanel(statId); 
+        });
+    });
+
+    // --- 5. INICIALIZAÇÃO ---
+    loadState();
 });
-
-sanidadeMaxInput.addEventListener("input", () => {
-  let max = Math.max(1, toIntSafe(sanidadeMaxInput.value, 1));
-  sanidadeMaxInput.value = max;
-  if (sanidadeAtual > max) sanidadeAtual = max;
-  atualizarBarraVisual(sanidadeAtual, max, sanidadeBar, sanidadeAtualSpan);
-  salvarEstado();
-});
-
-/* =========================
-   SALVAR / CARREGAR ESTADO
-========================= */
-
-function salvarEstado() {
-  const estado = {
-    vidaAtual,
-    vidaMax: vidaMaxInput.value,
-    sanidadeAtual,
-    sanidadeMax: sanidadeMaxInput.value
-  };
-  localStorage.setItem("painelRPG", JSON.stringify(estado));
-}
-
-function carregarEstado() {
-  const salvo = localStorage.getItem("painelRPG");
-  if (!salvo) return;
-
-  const estado = JSON.parse(salvo);
-
-  vidaAtual = estado.vidaAtual ?? vidaAtual;
-  sanidadeAtual = estado.sanidadeAtual ?? sanidadeAtual;
-
-  vidaMaxInput.value = estado.vidaMax ?? vidaMaxInput.value;
-  sanidadeMaxInput.value = estado.sanidadeMax ?? sanidadeMaxInput.value;
-
-  atualizarBarraVisual(
-    vidaAtual,
-    vidaMaxInput.value,
-    vidaBar,
-    vidaAtualSpan
-  );
-
-  atualizarBarraVisual(
-    sanidadeAtual,
-    sanidadeMaxInput.value,
-    sanidadeBar,
-    sanidadeAtualSpan
-  );
-}
-
-carregarEstado();
