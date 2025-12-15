@@ -1,125 +1,157 @@
 @font-face {
   font-family: "Heartless";
-  /* Caminho ajustado para raiz */
+  /* Certifique-se que o arquivo Heartless.ttf está na mesma pasta */
   src: url("Heartless.ttf");
 }
 
-* { box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  margin: 0;
-  background: #1b1b1b;
-  font-family: "Heartless", serif;
+  background-color: #121212; /* Fundo quase preto */
+  font-family: "Heartless", serif; /* Fonte padrão para tudo */
   color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
 .painel {
-  width: 90%;
-  max-width: 1200px;
-  margin: 40px auto;
+  width: 100%;
+  max-width: 900px;
+  padding: 20px;
 }
 
-.bloco { margin-bottom: 60px; }
+.bloco {
+  margin-bottom: 60px; /* Espaço entre Vida e Sanidade */
+}
 
-.titulo { font-size: 42px; margin-bottom: 10px; }
+/* --- TÍTULOS --- */
+.titulo {
+  font-size: 4rem; /* Tamanho grande como na imagem */
+  margin-bottom: 5px;
+  line-height: 1;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 #000;
+}
 
-.separador-titulo { height: 32px; vertical-align: middle; margin: 0 10px; }
+.separador-titulo {
+  height: 0.8em; /* Altura proporcional ao texto */
+  vertical-align: middle;
+  filter: invert(1); /* Garante que o separador preto fique branco */
+}
 
-.linha { display: flex; align-items: center; gap: 20px; }
-
-.barra-externa {
+/* --- BARRAS --- */
+.barra-container {
   position: relative;
-  flex: 1;
-  height: 60px;
-  background: #111;
-  border: 3px solid #000;
-  overflow: hidden;
+  width: 100%;
+  height: 90px; /* Barra bem alta/grossa */
+  background-color: #000; /* Fundo preto quando a barra esvazia */
+  border: 1px solid #000;
 }
 
-.barra-interna {
+.barra-fundo {
+  width: 100%;
+  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
+}
+
+.barra-preenchimento {
   height: 100%;
   width: 100%;
-  transition: width 0.3s ease, background-color 0.3s ease;
+  transition: width 0.3s ease-out;
 }
 
-.barra-interna.vida { background: #9b1c1c; }
-.barra-interna.sanidade { background: #3c458b; }
+/* Cores Exatas da Imagem */
+.vida {
+  background-color: #8a1c1c; /* Vermelho escuro/sangue */
+}
 
-.barra-texto {
+.sanidade {
+  background-color: #2d3a6e; /* Azul índigo escuro */
+}
+
+/* --- TEXTO DENTRO DA BARRA --- */
+.barra-texto-overlay {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 12px;
-  font-size: 32px;
-  z-index: 2;
-  transition: opacity 0.3s ease;
+  align-items: center;
+  z-index: 10; /* Fica acima da cor */
+  font-size: 3.5rem; /* Números grandes */
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8); /* Sombra para ler melhor */
 }
 
-/* input que mostra o máximo — estilizado para parecer texto */
+.separador-nums {
+  height: 0.8em;
+  margin: 0 15px;
+  filter: invert(1);
+}
+
+/* Input do valor máximo disfarçado de texto */
 .valor-max {
-  width: 90px;
   background: transparent;
   border: none;
   color: white;
-  font-family: "Heartless";
-  font-size: 32px;
+  font-family: "Heartless", serif;
+  font-size: 3.5rem; /* Mesmo tamanho do texto */
+  width: 120px;
   text-align: center;
   outline: none;
+  padding: 0;
 }
 
-/* quando o usuário foca no input, deixa um leve indicador */
-.valor-max:focus {
-  outline: 1px dashed rgba(255,255,255,0.2);
-  border-radius: 4px;
+/* --- CONTROLES (Botões) --- */
+.controles {
+  display: flex;
+  justify-content: flex-end; /* Alinha à direita */
+  gap: 20px;
+  margin-top: 10px;
+  padding-right: 5px;
 }
-
-.separador { height: 34px; }
-
-.controles { display: flex; gap: 12px; }
 
 .controles button {
   background: none;
   border: none;
   color: white;
-  font-size: 48px;
+  font-family: sans-serif; /* Botões usam fonte simples (+ -) */
+  font-size: 3rem;
   cursor: pointer;
+  line-height: 0.5;
+  padding: 10px;
 }
 
-.controles button:hover { opacity: 0.8; }
-
-@media (max-width: 768px) {
-  .barra-externa { height: 55px; }
-  .barra-texto { font-size: 26px; }
-  .valor-max { font-size: 26px; width: 72px; }
-  .titulo { font-size: 30px; }
-  .separador { height: 28px; }
+.controles button:hover {
+  color: #ccc;
+  transform: scale(1.1);
 }
 
-/* --- NOVAS FUNCIONALIDADES VISUAIS --- */
+/* --- ESTADOS ESPECIAIS --- */
 
-/* Animação de Piscar (Crítico) */
-@keyframes piscarAnim {
+/* Piscar (Crítico) */
+@keyframes piscar {
   0% { opacity: 1; }
-  50% { opacity: 0.4; }
+  50% { opacity: 0.3; }
   100% { opacity: 1; }
 }
 
 .piscar {
-  animation: piscarAnim 1s infinite ease-in-out;
+  animation: piscar 0.8s infinite;
 }
 
-/* Estado Zerado (Morte/Loucura) */
+/* Zerado (Preto total) */
 .zerado {
-  background: #000000 !important; /* Barra preta */
-  width: 100% !important; /* Opcional: se quiser que o fundo preto preencha tudo */
+  background-color: #000000 !important;
+  width: 100% !important;
 }
 
 .zerado-texto {
-  opacity: 0.4; /* Texto escuro/opaco */
+  opacity: 0.3;
   filter: grayscale(100%);
 }
