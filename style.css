@@ -1,7 +1,7 @@
 @font-face {
   font-family: "Heartless";
   src: url("Heartless.ttf") format("truetype");
-  font-display: block; /* ← impede renderização com fallback */
+  font-display: block;
 }
 
 /* base */
@@ -56,7 +56,7 @@ body {
   gap: 12px;
   font-size: 32px;
   z-index: 2;
-  line-height: 1; /* ← FIX silencioso do colapso */
+  line-height: 1;
 }
 
 .valor-max {
@@ -71,7 +71,10 @@ body {
 
 .separador { height: 34px; }
 
-.controles { display: flex; gap: 12px; }
+.controles {
+  display: flex;
+  gap: 12px;
+}
 
 .controles button {
   background: none;
@@ -107,8 +110,23 @@ body {
   opacity: 0.3;
 }
 
-/* mobile */
+/* =========================
+   📱 AJUSTES APENAS MOBILE
+========================= */
 @media (max-width: 768px) {
+
+  /* aumenta espaço ENTRE os botões */
+  .controles {
+    gap: 28px; /* ← antes era 12px */
+  }
+
+  /* aumenta área de clique SEM mudar visual */
+  .controles button {
+    padding: 14px 18px; /* área de toque maior */
+    line-height: 1;
+  }
+
+  /* leves ajustes gerais já existentes */
   .barra-externa { height: 55px; }
   .barra-texto { font-size: 26px; }
   .valor-max { font-size: 26px; width: 72px; }
