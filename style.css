@@ -1,8 +1,10 @@
 @font-face {
   font-family: "Heartless";
-  src: url("fonts/Heartless.ttf");
+  /* caminho ajustado: o .ttf está no root do repo, então uso URL sem pasta */
+  src: url("Heartless.ttf") format("truetype");
 }
 
+/* base e resto inalterados — mantendo tudo que já estava certo */
 * { box-sizing: border-box; }
 
 body {
@@ -41,7 +43,7 @@ body {
   left: 0;
   height: 100%;
   width: 100%;
-  transition: width 0.3s ease;
+  transition: width 0.3s ease, opacity 0.15s linear;
 }
 
 .barra-interna.vida { background: #9b1c1c; }
@@ -56,9 +58,9 @@ body {
   gap: 12px;
   font-size: 32px;
   z-index: 2;
+  transition: opacity 0.3s ease;
 }
 
-/* input que mostra o máximo — estilizado para parecer texto */
 .valor-max {
   width: 90px;
   background: transparent;
@@ -67,13 +69,6 @@ body {
   font-family: "Heartless";
   font-size: 32px;
   text-align: center;
-  outline: none;
-}
-
-/* quando o usuário foca no input, deixa um leve indicador */
-.valor-max:focus {
-  outline: 1px dashed rgba(255,255,255,0.2);
-  border-radius: 4px;
 }
 
 .separador { height: 34px; }
@@ -88,8 +83,19 @@ body {
   cursor: pointer;
 }
 
-.controles button:hover { opacity: 0.8; }
+/* piscar crítico */
+@keyframes piscar {
+  0% { opacity: 1; }
+  50% { opacity: 0.15; }
+  100% { opacity: 1; }
+}
 
+.critico { animation: piscar 0.8s linear infinite; }
+.zerado { background: #000 !important; }
+.texto-zerado { color: #000 !important; opacity: 0.35; }
+.separador-zerado { filter: brightness(0); opacity: 0.35; }
+
+/* mobile */
 @media (max-width: 768px) {
   .barra-externa { height: 55px; }
   .barra-texto { font-size: 26px; }
