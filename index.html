@@ -2,19 +2,13 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Painel do Jogador</title>
+<title>Painel RPG</title>
 
 <style>
-:root {
-  --vida-color: #c0392b;
-  --sanidade-color: #2980b9;
-  --bg-bar: #1e1e1e;
-}
-
 body {
   background:#0f0f0f;
-  font-family: Arial, sans-serif;
   color:#fff;
+  font-family: Arial, sans-serif;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -22,188 +16,178 @@ body {
 }
 
 .painel {
-  width:360px;
+  width:380px;
   background:#141414;
-  padding:20px;
-  border-radius:12px;
-  box-shadow:0 0 20px rgba(0,0,0,.6);
+  padding:24px;
+  border-radius:14px;
+  box-shadow:0 0 25px rgba(0,0,0,.7);
 }
 
-.barra-container {
-  margin-bottom:20px;
+.bloco {
+  margin-bottom:30px;
 }
 
-.barra-topo {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+.titulo {
+  font-size:18px;
   margin-bottom:6px;
 }
 
-.barra-topo span {
-  font-size:14px;
-}
-
-.barra {
+.barra-externa {
   position:relative;
-  height:26px;
-  background:var(--bg-bar);
+  height:28px;
+  background:#1e1e1e;
   border-radius:8px;
   overflow:hidden;
 }
 
-.barra-preenchimento {
+.barra-interna {
   height:100%;
   width:100%;
   transition:width .3s ease;
 }
 
-.vida {
-  background:var(--vida-color);
-}
+.vida { background:#b02a2a; }
+.sanidade { background:#2a3fb0; }
 
-.sanidade {
-  background:var(--sanidade-color);
-}
-
-/* TEXTO CENTRAL */
 .barra-texto {
   position:absolute;
   inset:0;
   display:flex;
-  justify-content:center;
   align-items:center;
+  justify-content:center;
   font-weight:bold;
   z-index:2;
-}
-
-/* ESTADO CRÍTICO */
-.critico {
-  animation: piscar 1s infinite;
-}
-
-/* ZERADO */
-.zerado .barra-preenchimento {
-  background:#000 !important;
-}
-
-.zerado .barra-texto {
-  color:#000;
-  opacity:.4;
-}
-
-@keyframes piscar {
-  0% { opacity:1; }
-  50% { opacity:.3; }
-  100% { opacity:1; }
+  transition:opacity .2s ease;
 }
 
 .controles {
   display:flex;
   justify-content:space-between;
-  gap:10px;
+  margin-top:6px;
 }
 
 .controles input {
   width:60px;
-  padding:4px;
+}
+
+/* ===== ANIMAÇÕES ===== */
+@keyframes piscar {
+  0% { opacity:1; }
+  50% { opacity:.2; }
+  100% { opacity:1; }
+}
+
+.piscar {
+  animation: piscar 0.9s infinite;
+}
+
+/* ===== ZERADO ===== */
+.zerado {
+  background:#000 !important;
+}
+
+.texto-zerado {
+  color:#000;
+  opacity:.35;
 }
 </style>
 </head>
 
 <body>
+
 <div class="painel">
 
   <!-- VIDA -->
-  <div class="barra-container" id="vidaBox">
-    <div class="barra-topo">
-      <span>❤️ Vida</span>
-      <span>
-        <input type="number" id="vidaAtual" value="10" min="0">
-        /
-        <input type="number" id="vidaMax" value="10" min="1">
-      </span>
-    </div>
-    <div class="barra">
-      <div class="barra-preenchimento vida" id="vidaBarra"></div>
+  <div class="bloco">
+    <div class="titulo">VIDA</div>
+
+    <div class="barra-externa">
+      <div class="barra-interna vida" id="vidaBarra"></div>
       <div class="barra-texto" id="vidaTexto"></div>
+    </div>
+
+    <div class="controles">
+      <div>
+        Atual:
+        <input type="number" id="vidaAtual" value="10" min="0">
+      </div>
+      <div>
+        Máx:
+        <input type="number" id="vidaMax" value="10" min="1">
+      </div>
     </div>
   </div>
 
   <!-- SANIDADE -->
-  <div class="barra-container" id="sanidadeBox">
-    <div class="barra-topo">
-      <span>🧠 Sanidade</span>
-      <span>
-        <input type="number" id="sanAtual" value="10" min="0">
-        /
-        <input type="number" id="sanMax" value="10" min="1">
-      </span>
-    </div>
-    <div class="barra">
-      <div class="barra-preenchimento sanidade" id="sanBarra"></div>
+  <div class="bloco">
+    <div class="titulo">SANIDADE</div>
+
+    <div class="barra-externa">
+      <div class="barra-interna sanidade" id="sanBarra"></div>
       <div class="barra-texto" id="sanTexto"></div>
+    </div>
+
+    <div class="controles">
+      <div>
+        Atual:
+        <input type="number" id="sanAtual" value="10" min="0">
+      </div>
+      <div>
+        Máx:
+        <input type="number" id="sanMax" value="10" min="1">
+      </div>
     </div>
   </div>
 
 </div>
 
 <script>
-function atualizarBarra(atual, max, barra, texto, box) {
+function atualizar(atual, max, barra, texto) {
   atual = Math.max(0, atual);
   max = Math.max(1, max);
 
-  const porcentagem = (atual / max) * 100;
-  barra.style.width = porcentagem + "%";
+  const pct = (atual / max) * 100;
+  barra.style.width = pct + "%";
   texto.textContent = `${atual} / ${max}`;
 
-  box.classList.remove("critico", "zerado");
+  /* limpa estados */
+  barra.classList.remove("piscar", "zerado");
+  texto.classList.remove("piscar", "texto-zerado");
 
+  /* regras */
   if (atual === 0) {
-    box.classList.add("zerado");
-  } 
-  else if (atual < 5) {
-    box.classList.add("critico");
+    barra.classList.add("zerado");
+    texto.classList.add("texto-zerado");
+  }
+  else if (atual <= 5) {
+    barra.classList.add("piscar");
+    texto.classList.add("piscar");
   }
 }
 
 /* VIDA */
 const vidaAtual = document.getElementById("vidaAtual");
-const vidaMax = document.getElementById("vidaMax");
+const vidaMax   = document.getElementById("vidaMax");
 const vidaBarra = document.getElementById("vidaBarra");
 const vidaTexto = document.getElementById("vidaTexto");
-const vidaBox = document.getElementById("vidaBox");
 
 /* SANIDADE */
 const sanAtual = document.getElementById("sanAtual");
-const sanMax = document.getElementById("sanMax");
+const sanMax   = document.getElementById("sanMax");
 const sanBarra = document.getElementById("sanBarra");
 const sanTexto = document.getElementById("sanTexto");
-const sanBox = document.getElementById("sanidadeBox");
 
 function atualizarTudo() {
-  atualizarBarra(
-    Number(vidaAtual.value),
-    Number(vidaMax.value),
-    vidaBarra,
-    vidaTexto,
-    vidaBox
-  );
-
-  atualizarBarra(
-    Number(sanAtual.value),
-    Number(sanMax.value),
-    sanBarra,
-    sanTexto,
-    sanBox
-  );
+  atualizar(+vidaAtual.value, +vidaMax.value, vidaBarra, vidaTexto);
+  atualizar(+sanAtual.value, +sanMax.value, sanBarra, sanTexto);
 }
 
-document.querySelectorAll("input").forEach(input => {
-  input.addEventListener("input", atualizarTudo);
-});
+document.querySelectorAll("input").forEach(i =>
+  i.addEventListener("input", atualizarTudo)
+);
 
 atualizarTudo();
 </script>
+
 </body>
 </html>
