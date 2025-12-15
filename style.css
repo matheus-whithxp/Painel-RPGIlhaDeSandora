@@ -1,6 +1,7 @@
 @font-face {
   font-family: "Heartless";
   src: url("Heartless.ttf") format("truetype");
+  font-display: block; /* ← impede renderização com fallback */
 }
 
 /* base */
@@ -39,11 +40,8 @@ body {
 
 .barra-interna {
   position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  transition: width 0.3s ease, opacity 0.15s linear;
+  inset: 0;
+  transition: width 0.3s ease;
 }
 
 .barra-interna.vida { background: #9b1c1c; }
@@ -58,7 +56,7 @@ body {
   gap: 12px;
   font-size: 32px;
   z-index: 2;
-  transition: opacity 0.3s ease;
+  line-height: 1; /* ← FIX silencioso do colapso */
 }
 
 .valor-max {
@@ -94,24 +92,22 @@ body {
   animation: piscar 0.8s linear infinite;
 }
 
-/* barra zerada — barra completamente escura */
+/* zerado */
 .zerado {
   background: #000 !important;
-  opacity: 1 !important;
 }
 
-/* ✨ NOVO: texto e ícone ficam pretos e opacos quando zerado */
 .texto-zerado {
   opacity: 0.3;
-  color: #000 !important; /* texto preto */
+  color: #000 !important;
 }
 
 .separador-zerado {
-  filter: grayscale(100%) brightness(0) contrast(100%);
+  filter: grayscale(100%) brightness(0);
   opacity: 0.3;
 }
 
-/* responsivo mobile */
+/* mobile */
 @media (max-width: 768px) {
   .barra-externa { height: 55px; }
   .barra-texto { font-size: 26px; }
