@@ -1,157 +1,125 @@
-/* Importação da fonte (Assumindo que o arquivo Heartless.ttf está na mesma pasta) */
 @font-face {
-    font-family: 'Heartless';
-    src: url('Heartless.ttf') format('truetype'); 
+  font-family: "Heartless";
+  /* Caminho ajustado para raiz */
+  src: url("Heartless.ttf");
 }
 
-:root {
-    --bg-color: #1a1a1a;
-    --life-color: #c0392b; /* Vermelho escuro */
-    --sanity-color: #2980b9; /* Azul escuro */
-    --font-color: #ffffff;
-    --zero-color: #000000;
-    --zero-opacity: 0.3;
-}
+* { box-sizing: border-box; }
 
 body {
-    background-color: var(--bg-color);
-    color: var(--font-color);
-    font-family: 'Heartless', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    padding: 20px;
+  margin: 0;
+  background: #1b1b1b;
+  font-family: "Heartless", serif;
+  color: white;
 }
 
-.panel-container {
-    width: 100%;
-    max-width: 600px;
+.painel {
+  width: 90%;
+  max-width: 1200px;
+  margin: 40px auto;
 }
 
-/* Títulos */
-.stat-title {
-    font-size: 3em;
-    text-align: left;
-    margin: 0 0 10px 0;
-    line-height: 1;
+.bloco { margin-bottom: 60px; }
+
+.titulo { font-size: 42px; margin-bottom: 10px; }
+
+.separador-titulo { height: 32px; vertical-align: middle; margin: 0 10px; }
+
+.linha { display: flex; align-items: center; gap: 20px; }
+
+.barra-externa {
+  position: relative;
+  flex: 1;
+  height: 60px;
+  background: #111;
+  border: 3px solid #000;
+  overflow: hidden;
 }
 
-/* Estrutura da Barra + Controles */
-.bar-control-container {
-    display: flex;
-    align-items: stretch;
-    height: 100px;
-    margin-bottom: 25px;
-    border: 2px solid var(--font-color);
+.barra-interna {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
 }
 
-/* A barra principal que mostra o preenchimento */
-.stat-bar {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2.5em;
-    position: relative;
-    background-color: var(--life-color); 
-    background-image: linear-gradient(to right, var(--life-color) 0%, var(--life-color) 100%);
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    transition: background-size 0.3s ease-out, background-color 0.3s ease-out;
+.barra-interna.vida { background: #9b1c1c; }
+.barra-interna.sanidade { background: #3c458b; }
+
+.barra-texto {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 32px;
+  z-index: 2;
+  transition: opacity 0.3s ease;
 }
 
-/* Cores específicas */
-.life-bar .stat-bar {
-    background-color: var(--life-color);
-    background-image: linear-gradient(to right, var(--life-color) 0%, var(--life-color) 100%);
-}
-.sanity-bar .stat-bar {
-    background-color: var(--sanity-color);
-    background-image: linear-gradient(to right, var(--sanity-color) 0%, var(--sanity-color) 100%);
-}
-
-/* Valores e Inputs dentro da barra */
-.stat-value {
-    color: var(--font-color);
-    padding: 0 5px;
-    background: none;
-    border: none;
-    text-align: center;
-    font-family: 'Heartless', sans-serif;
-    font-size: 1em;
-    line-height: 1;
-}
-.max-value {
-    width: 40px;
-    color: var(--font-color);
-    -moz-appearance: textfield;
-}
-.max-value::-webkit-inner-spin-button, 
-.max-value::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-.current-value {
-    pointer-events: none;
+/* input que mostra o máximo — estilizado para parecer texto */
+.valor-max {
+  width: 90px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-family: "Heartless";
+  font-size: 32px;
+  text-align: center;
+  outline: none;
 }
 
-
-/* --- CONTROLES (+ / -) --- */
-.control-buttons {
-    display: flex;
-    flex-direction: column;
-    width: 40px;
-    background-color: #333;
-}
-.control-btn {
-    flex-grow: 1;
-    background-color: #444;
-    color: var(--font-color);
-    border: none;
-    border-left: 2px solid var(--font-color);
-    font-size: 1.5em;
-    cursor: pointer;
-    line-height: 1;
-    transition: background-color 0.15s ease-in-out;
-}
-.control-btn:hover {
-    background-color: #666;
-}
-.control-btn:active {
-    background-color: #888;
-}
-.minus-btn {
-    border-bottom: 2px solid var(--font-color);
+/* quando o usuário foca no input, deixa um leve indicador */
+.valor-max:focus {
+  outline: 1px dashed rgba(255,255,255,0.2);
+  border-radius: 4px;
 }
 
+.separador { height: 34px; }
 
-/* --- COMPORTAMENTO VISUAL (ZERADO / CRÍTICO) --- */
+.controles { display: flex; gap: 12px; }
 
-/* 1. ESTADO ZERADO (0) */
-.is-zero {
-    background-color: var(--zero-color) !important;
-    background-image: none !important;
-}
-.is-zero .stat-value {
-    color: var(--zero-color) !important;
-    opacity: var(--zero-opacity);
-}
-
-/* 2. ESTADO CRÍTICO (<= 5 e > 0) */
-@keyframes flicker {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+.controles button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 48px;
+  cursor: pointer;
 }
 
-.is-critical {
-    animation: flicker 1s infinite alternate;
+.controles button:hover { opacity: 0.8; }
+
+@media (max-width: 768px) {
+  .barra-externa { height: 55px; }
+  .barra-texto { font-size: 26px; }
+  .valor-max { font-size: 26px; width: 72px; }
+  .titulo { font-size: 30px; }
+  .separador { height: 28px; }
 }
 
-.separator {
-    border: none;
-    height: 2px;
-    background-color: #555;
-    margin: 30px 0;
+/* --- NOVAS FUNCIONALIDADES VISUAIS --- */
+
+/* Animação de Piscar (Crítico) */
+@keyframes piscarAnim {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+.piscar {
+  animation: piscarAnim 1s infinite ease-in-out;
+}
+
+/* Estado Zerado (Morte/Loucura) */
+.zerado {
+  background: #000000 !important; /* Barra preta */
+  width: 100% !important; /* Opcional: se quiser que o fundo preto preencha tudo */
+}
+
+.zerado-texto {
+  opacity: 0.4; /* Texto escuro/opaco */
+  filter: grayscale(100%);
 }
