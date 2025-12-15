@@ -1,48 +1,66 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel RPG</title>
-    <link rel="stylesheet" href="style.css"> 
+  <meta charset="UTF-8">
+  <title>Painel RPG</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:,">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <div class="panel-container">
 
-        <div class="stat-group" id="life-group">
-            <h1 class="stat-title">VIDA</h1>
-            <div class="bar-control-container life-bar">
-                <div class="stat-bar" data-stat="life">
-                    <span class="stat-value current-value" id="current-life">0</span>
-                    /
-                    <input type="number" class="stat-value max-value" id="max-life" value="0" min="0">
-                </div>
-                <div class="control-buttons">
-                    <button class="control-btn minus-btn" data-target="life" data-action="decrease">-</button>
-                    <button class="control-btn plus-btn" data-target="life" data-action="increase">+</button>
-                </div>
-            </div>
-        </div>
-        
-        <hr class="separator">
+<div class="painel">
 
-        <div class="stat-group" id="sanity-group">
-            <h1 class="stat-title">PD / SANIDADE</h1>
-            <div class="bar-control-container sanity-bar">
-                <div class="stat-bar" data-stat="sanity">
-                    <span class="stat-value current-value" id="current-sanity">0</span>
-                    /
-                    <input type="number" class="stat-value max-value" id="max-sanity" value="0" min="0">
-                </div>
-                <div class="control-buttons">
-                    <button class="control-btn minus-btn" data-target="sanity" data-action="decrease">-</button>
-                    <button class="control-btn plus-btn" data-target="sanity" data-action="increase">+</button>
-                </div>
-            </div>
+  <div class="bloco">
+    <div class="titulo">VIDA</div>
+
+    <div class="linha">
+      <div class="barra-externa">
+
+        <div class="barra-interna vida" id="vida-barra"></div>
+
+        <div class="barra-texto" id="vida-texto-container">
+          <span id="vida-atual">100</span>
+          <img src="separador.png" class="separador" alt="/">
+          <input id="vida-max-input" class="valor-max" type="number" min="1" step="1" value="100" />
         </div>
 
+      </div>
+
+      <div class="controles">
+        <button id="vida-menos">−</button>
+        <button id="vida-mais">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bloco">
+    <div class="titulo">
+      PD <img src="separador.png" class="separador-titulo" alt="/"> SANIDADE
     </div>
 
-    <script src="script.js"></script>
+    <div class="linha">
+      <div class="barra-externa">
+
+        <div class="barra-interna sanidade" id="sanidade-barra"></div>
+
+        <div class="barra-texto" id="sanidade-texto-container">
+          <span id="sanidade-atual">100</span>
+          <img src="separador.png" class="separador" alt="/">
+          <input id="sanidade-max-input" class="valor-max" type="number" min="1" step="1" value="100" />
+        </div>
+
+      </div>
+
+      <div class="controles">
+        <button id="sanidade-menos">−</button>
+        <button id="sanidade-mais">+</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
