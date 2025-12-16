@@ -1,142 +1,130 @@
-let vidaAtual = 100;
-let sanidadeAtual = 100;
-
-const vidaBar = document.getElementById("vida-barra");
-const sanidadeBar = document.getElementById("sanidade-barra");
-
-const vidaAtualSpan = document.getElementById("vida-atual");
-const sanidadeAtualSpan = document.getElementById("sanidade-atual");
-
-const vidaMaxInput = document.getElementById("vida-max-input");
-const sanidadeMaxInput = document.getElementById("sanidade-max-input");
-
-const vidaMaisBtn = document.getElementById("vida-mais");
-const vidaMenosBtn = document.getElementById("vida-menos");
-const sanidadeMaisBtn = document.getElementById("sanidade-mais");
-const sanidadeMenosBtn = document.getElementById("sanidade-menos");
-
-/* Sons (funcionam PC + mobile) */
-const somDano = new Audio("dano_sofrido.mp3");
-const somMorte = new Audio("morte.mp3");
-
-let timerVida = null;
-let timerSanidade = null;
-
-function toIntSafe(v, fallback = 0) {
-  const n = parseInt(v);
-  return isNaN(n) ? fallback : n;
+@font-face {
+  font-family: "Heartless";
+  src: url("Heartless.ttf") format("truetype");
+  font-display: block;
 }
 
-function vibrar(ms) {
-  if ("vibrate" in navigator) {
-    navigator.vibrate(ms);
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #1b1b1b;
+  font-family: "Heartless", serif;
+  color: white;
+}
+
+.painel {
+  width: 90%;
+  max-width: 1200px;
+  margin: 40px auto;
+}
+
+.bloco { margin-bottom: 60px; }
+
+.titulo { font-size: 42px; margin-bottom: 10px; }
+
+.separador-titulo { height: 32px; vertical-align: middle; margin: 0 10px; }
+
+.linha { display: flex; align-items: center; gap: 20px; }
+
+.barra-externa {
+  position: relative;
+  flex: 1;
+  height: 60px;
+  background: #111;
+  border: 3px solid #000;
+  overflow: hidden;
+}
+
+.barra-interna {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  transition: width 0.3s ease, opacity 0.15s linear;
+}
+
+.barra-interna.vida { background: #9b1c1c; }
+.barra-interna.sanidade { background: #3c458b; }
+
+.barra-texto {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 32px;
+  z-index: 2;
+  line-height: 1;
+}
+
+.valor-max {
+  width: 90px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-family: "Heartless";
+  font-size: 32px;
+  text-align: center;
+}
+
+.separador { height: 34px; }
+
+.controles {
+  display: flex;
+  gap: 12px;
+}
+
+.controles button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 48px;
+  cursor: pointer;
+}
+
+/* piscar crítico */
+@keyframes piscar {
+  0% { opacity: 1; }
+  50% { opacity: 0.15; }
+  100% { opacity: 1; }
+}
+
+.critico {
+  animation: piscar 0.8s linear infinite;
+}
+
+.zerado {
+  background: #000 !important;
+  opacity: 1 !important;
+}
+
+.texto-zerado {
+  opacity: 0.3;
+  color: #000 !important;
+}
+
+.separador-zerado {
+  filter: grayscale(100%) brightness(0) contrast(100%);
+  opacity: 0.3;
+}
+
+/* MOBILE — só usabilidade */
+@media (max-width: 768px) {
+  .controles {
+    gap: 28px;
   }
-}
 
-function atualizarBarraVisual(atual, max, barraEl, spanEl) {
-  const safeMax = Math.max(1, toIntSafe(max, 1));
-  const porcent = Math.max(0, Math.min(100, (atual / safeMax) * 100));
-
-  barraEl.style.width = porcent + "%";
-  spanEl.innerText = atual;
-
-  const textoEl = barraEl.parentElement.querySelector(".barra-texto");
-  const separadorEl = textoEl.querySelector(".separador");
-
-  barraEl.classList.remove("critico", "zerado");
-  textoEl.classList.remove("critico", "texto-zerado");
-  separadorEl.classList.remove("separador-zerado");
-
-  if (atual === 0) {
-    barraEl.classList.add("zerado");
-    textoEl.classList.add("texto-zerado");
-    separadorEl.classList.add("separador-zerado");
-  } else if (atual <= 5) {
-    barraEl.classList.add("critico");
-    textoEl.classList.add("critico");
-  }
-}
-
-/* VIDA */
-function agendarVida(novo, antes) {
-  clearTimeout(timerVida);
-  if (novo >= antes) return;
-
-  timerVida = setTimeout(() => {
-    if (novo === 0 && antes === 1) {
-      somMorte.currentTime = 0;
-      somMorte.play();
-      vibrar(60);
-    } else {
-      somDano.currentTime = 0;
-      somDano.play();
-      vibrar(40);
-    }
-  }, 1000);
-}
-
-/* SANIDADE */
-function agendarSanidade(novo, antes) {
-  clearTimeout(timerSanidade);
-  if (novo >= antes) return;
-
-  timerSanidade = setTimeout(() => {
-    vibrar(40);
-  }, 1000);
-}
-
-function alterarValor(tipo, delta) {
-  if (tipo === "vida") {
-    const max = Math.max(1, toIntSafe(vidaMaxInput.value, 100));
-    const antes = vidaAtual;
-    const novo = Math.max(0, Math.min(vidaAtual + delta, max));
-
-    agendarVida(novo, antes);
-    vidaAtual = novo;
-
-    atualizarBarraVisual(vidaAtual, max, vidaBar, vidaAtualSpan);
-  } else {
-    const max = Math.max(1, toIntSafe(sanidadeMaxInput.value, 100));
-    const antes = sanidadeAtual;
-    const novo = Math.max(0, Math.min(sanidadeAtual + delta, max));
-
-    agendarSanidade(novo, antes);
-    sanidadeAtual = novo;
-
-    atualizarBarraVisual(sanidadeAtual, max, sanidadeBar, sanidadeAtualSpan);
+  .controles button {
+    padding: 18px;
+    font-size: 52px;
   }
 
-  salvarEstado();
+  .barra-externa { height: 55px; }
+  .barra-texto { font-size: 26px; }
+  .valor-max { font-size: 26px; width: 72px; }
+  .titulo { font-size: 30px; }
+  .separador { height: 28px; }
 }
-
-/* Eventos */
-vidaMaisBtn.onclick = () => alterarValor("vida", 1);
-vidaMenosBtn.onclick = () => alterarValor("vida", -1);
-sanidadeMaisBtn.onclick = () => alterarValor("sanidade", 1);
-sanidadeMenosBtn.onclick = () => alterarValor("sanidade", -1);
-
-/* LocalStorage */
-function salvarEstado() {
-  localStorage.setItem("painelRPG", JSON.stringify({
-    vidaAtual,
-    vidaMax: vidaMaxInput.value,
-    sanidadeAtual,
-    sanidadeMax: sanidadeMaxInput.value
-  }));
-}
-
-function carregarEstado() {
-  const salvo = localStorage.getItem("painelRPG");
-  if (!salvo) return;
-
-  const e = JSON.parse(salvo);
-  vidaAtual = e.vidaAtual ?? vidaAtual;
-  sanidadeAtual = e.sanidadeAtual ?? sanidadeAtual;
-  vidaMaxInput.value = e.vidaMax ?? vidaMaxInput.value;
-  sanidadeMaxInput.value = e.sanidadeMax ?? sanidadeMaxInput.value;
-
-  atualizarBarraVisual(vidaAtual, vidaMaxInput.value, vidaBar, vidaAtualSpan);
-  atualizarBarraVisual(sanidadeAtual, sanidadeMaxInput.value, sanidadeBar, sanidadeAtualSpan);
-}
-
-carregarEstado();
