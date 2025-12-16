@@ -96,14 +96,16 @@ body {
   animation: piscar 0.8s linear infinite;
 }
 
+/* barra zerada — barra completamente escura */
 .zerado {
   background: #000 !important;
   opacity: 1 !important;
 }
 
+/* texto e ícone ficam pretos e opacos quando zerado */
 .texto-zerado {
   opacity: 0.3;
-  color: #000 !important;
+  color: #000 !important; /* texto preto */
 }
 
 .separador-zerado {
@@ -111,7 +113,7 @@ body {
   opacity: 0.3;
 }
 
-/* MOBILE — só usabilidade */
+/* responsivo mobile (apenas usabilidade) */
 @media (max-width: 768px) {
   .controles {
     gap: 28px;
