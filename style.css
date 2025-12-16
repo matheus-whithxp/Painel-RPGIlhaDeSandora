@@ -1,6 +1,7 @@
 @font-face {
   font-family: "Heartless";
   src: url("Heartless.ttf") format("truetype");
+  font-display: block;
 }
 
 * { box-sizing: border-box; }
@@ -33,11 +34,15 @@ body {
   background: #111;
   border: 3px solid #000;
   overflow: hidden;
+  touch-action: none; /* importante para rastrear pointermove no mobile */
 }
 
 .barra-interna {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
   transition: width 0.3s ease, opacity 0.15s linear;
 }
 
@@ -53,6 +58,7 @@ body {
   gap: 12px;
   font-size: 32px;
   z-index: 2;
+  line-height: 1;
 }
 
 .valor-max {
@@ -67,7 +73,10 @@ body {
 
 .separador { height: 34px; }
 
-.controles { display: flex; gap: 12px; }
+.controles {
+  display: flex;
+  gap: 12px;
+}
 
 .controles button {
   background: none;
@@ -84,18 +93,34 @@ body {
   100% { opacity: 1; }
 }
 
-.critico { animation: piscar 0.8s linear infinite; }
+.critico {
+  animation: piscar 0.8s linear infinite;
+}
 
-.zerado { background: #000 !important; }
+/* barra zerada — barra completamente escura */
+.zerado {
+  background: #000 !important;
+  opacity: 1 !important;
+}
 
-.texto-zerado { opacity: 0.3; color: #000; }
+/* texto e ícone ficam pretos e opacos quando zerado */
+.texto-zerado {
+  opacity: 0.3;
+  color: #000 !important;
+}
 
 .separador-zerado {
-  filter: grayscale(100%) brightness(0);
+  filter: grayscale(100%) brightness(0) contrast(100%);
   opacity: 0.3;
 }
 
+/* responsivo mobile (apenas usabilidade) */
 @media (max-width: 768px) {
   .controles { gap: 28px; }
   .controles button { padding: 18px; font-size: 52px; }
+  .barra-externa { height: 55px; }
+  .barra-texto { font-size: 26px; }
+  .valor-max { font-size: 26px; width: 72px; }
+  .titulo { font-size: 30px; }
+  .separador { height: 28px; }
 }
